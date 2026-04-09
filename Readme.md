@@ -34,6 +34,7 @@ Key findings:
 │   ├── whitening_variants.parquet       # Transductive vs corpus-only vs held-out whitening
 │   ├── validation_500_combined.parquet  # 500 PMC-Patients validation (seed=123)
 │   └── validation_mt400_combined.parquet # 400 MTSamples validation
+│   └── layer_selection.parquet           # Layer selection
 └── figures/
     ├── fig1_mrr_by_layer.pdf
     ├── fig2_participation_ratio.pdf
