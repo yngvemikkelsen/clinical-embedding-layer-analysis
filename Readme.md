@@ -5,7 +5,7 @@
 Code, data, and results for the paper:
 
 > Mikkelsen Y. LAYER-LEVEL ANALYSIS OF EMBEDDING DEGRADATION IN CLINICAL DOCUMENT RETRIEVAL: DISENTANGLING MODEL TUNING, CONTEXT, AND RECOVERABILITY
- Submitted to *BMC Medical Informatics and Decision Making*. 2026.
+ Submitted to *BMC Medical Informatics and Decision Making*. 2026. 
 
 ## Overview
 
