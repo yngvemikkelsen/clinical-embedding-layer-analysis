@@ -1,10 +1,11 @@
-# Context or Tuning? Layer-Level Analysis of Embedding Degradation in Clinical Document Retrieval
+# LAYER-LEVEL ANALYSIS OF EMBEDDING DEGRADATION IN CLINICAL DOCUMENT RETRIEVAL: DISENTANGLING MODEL TUNING, CONTEXT, AND RECOVERABILITY
 
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
 Code, data, and results for the paper:
 
-> Mikkelsen Y. Context or Tuning? Layer-Level Analysis of Embedding Degradation in Clinical Document Retrieval. Submitted to *Journal of the American Medical Informatics Association (JAMIA)*. 2026.
+> Mikkelsen Y. LAYER-LEVEL ANALYSIS OF EMBEDDING DEGRADATION IN CLINICAL DOCUMENT RETRIEVAL: DISENTANGLING MODEL TUNING, CONTEXT, AND RECOVERABILITY
+ Submitted to *BMC Medical Informatics and Decision Making*. 2026.
 
 ## Overview
 
