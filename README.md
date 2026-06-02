@@ -9,7 +9,7 @@ Code, data, and results for the paper:
 
 ## Status
 
-Manuscript is currently in major revision at *JMIR Medical Informatics*. This repository corresponds to the **revised submission (v45)** dated 28 May 2026. Major changes from the initial submission include a corrected per-query mixed-effects analysis and updated anisotropy tier boundaries — see [`docs/analysis_decisions.md`](docs/analysis_decisions.md) for the full record.
+Manuscript is currently in major revision at *JMIR Medical Informatics*. This repository corresponds to the **revised submission** dated 28 May 2026. Major changes from the initial submission include a corrected per-query mixed-effects analysis and updated anisotropy tier boundaries — see [`docs/analysis_decisions.md`](docs/analysis_decisions.md) for the full record.
 
 ## Overview
 
