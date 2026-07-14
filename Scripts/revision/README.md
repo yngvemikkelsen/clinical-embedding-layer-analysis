@@ -1,45 +1,60 @@
-# `scripts/revision/` — revision-era analytical scripts
+# `scripts/revision/` — revision-era analytical pipelines
 
-This folder contains scripts added during the major revision (v17 → v45) that are not in the original three-script pipeline (`scripts/paper2_layer_analysis.py`, `paper2_supplementary.py`, `paper2_figures.py`).
+This folder contains the Colab notebook-derived Python scripts for the four analytical streams (A, B, C, E, G) added during the major revision cycle (v17 → final), plus figure generation and validation extension.
 
-## Verified scripts in this folder
+Each script is a stand-alone Colab-compatible pipeline. Set the Hugging Face token as an environment variable (`HF_TOKEN`) before running.
 
-### `v1_final_refit.py`
-The corrected per-query LME refit. Produces:
-- `../../results/per_model_summary_CORRECTED.parquet`
-- `../../results/per_model_fixed_effects_CORRECTED.parquet`
+## Contents
 
-Run after loading `per_query_ranks.parquet` (Stream C output). Takes 5–10 minutes on CPU for all 13 models. See `../../docs/analysis_decisions.md` §1 for the substantive story.
-
-### `v1_run_now.py`
-The diagnostic that motivated the corrected grouping in `v1_final_refit.py`. Fits both positional and corpus-unique grouping side by side on the same data so the reader can verify the rationale. Useful for reviewers or future work that wants to audit the LME specification choice.
-
-## Stream scripts NOT yet in this folder
-
-The major revision produced four additional analysis streams (B, C, E, G) whose scripts live in your Colab notebooks rather than the repo. The outputs of those streams (parquets) will be deposited in `../../results/` and `../../supplementary/` once consolidated. The pipeline scripts themselves are:
-
-| Stream | Pending scripts | Outputs (in `results/` or `supplementary/`) | Manuscript usage |
+| Script | Purpose | Outputs | Runtime |
 |---|---|---|---|
-| A (matched comparisons) | `stream_a_matched_comparisons.py` — adds BERT-base-uncased and BioMistral-7B to the panel | Per-model results for 2 added configurations | Methods (Models table); Results matched-comparison contrasts |
-| B (ZCA methodology) | `stream_b_methodology_comparison.py`, `stream_b_epsilon_sensitivity.py`, `stream_b_cross_validation.py` | `methodology_comparison.parquet`, `epsilon_sensitivity.parquet`, `cross_validation.parquet` | §3.5, §4.10, §4.11, Figure 4, Table 3, MMA 7, 8 |
-| C (per-query LME inputs) | `stream_c_per_query_ranks.py` — generates long-format input for `v1_final_refit.py` | `per_query_ranks.parquet` (437,400 rows) | Source data for §4.5 LME |
-| E (editorial: lexical, synthetic, chunking) | `stream_e_lexical_overlap.py`, `stream_e_synthetic_audit.py`, `stream_e_chunking_sensitivity.py` | `lexical_overlap.parquet`, `synthetic_distributional_audit.parquet`, `chunking_sensitivity.parquet` | §4.8, MMA 2, MMA 10 |
-| G (editorial: geometry, MedCPT, E5) | `stream_g_geometry_full.py`, `stream_g_medcpt_expanded.py`, `stream_g_e5_ablation_sweep.py`, `stream_g_anisotropy_tiers.py` | `geometry_full.parquet`, `medcpt_expanded.parquet`, `e5_mistral_ablation_sweep.parquet`, `anisotropy_three_tier.parquet` | Table 2, Figure 2, Figure 3, §4.10, MMA 9 |
+| `stream_a_matched_comparisons.py` | Adds BERT-base-uncased and BioMistral-7B (matched controls) to the 11-model panel; per-layer extraction, geometry, retrieval metrics, and interventions | `results/BERT-base-uncased.parquet`, `results/BioMistral-7B.parquet`, `interventions/interventions_new_models.parquet` | ~75–105 min (H100) |
+| `stream_b_zca_methodology.py` | ZCA whitening methodology comparison (transductive vs corpus-only vs baseline), ε sensitivity sweep, and 5-fold cross-validation for all 13 configurations | `stream_b/results/methodology_comparison.parquet`, `epsilon_sensitivity.parquet`, `cross_validation.parquet` | ~80–105 min |
+| `stream_c_per_query_ranks_lme.py` | Per-query per-layer rank extraction for LME input, plus first-pass LME fitting | `stream_c/rank_data/per_query_ranks.parquet`, `stream_c/lme_results/*.parquet` | ~60–90 min |
+| `stream_eg_editorial_analyses.py` | Combined editorial-response analyses: lexical overlap audit, synthetic corpus descriptive audit, MedCPT expanded evaluation, geometry across 11 configurations, E5-Mistral intervention sweep, chunking sensitivity | `stream_eg/stream_e/*.parquet`, `stream_eg/stream_g/*.parquet` | ~90–120 min |
+| `revision_figures.py` | Generates all 10 manuscript figures from cached parquet outputs of Streams A–G | `manuscript_figures/Figure1-10.png` + `figure_captions.md` | ~5 min (CPU) |
+| `colab_validation_extension.py` | Extended validation on 500 PMC-Patients and 400 MTSamples for the 5 models not previously validated at 4–5× scale | `{Model}_validation500_layers.parquet`, `validation_summary_5models.parquet` | ~90–120 min |
+| `prepare_500doc_corpora.py` | Prepares the 500-doc PMC-Patients and MTSamples corpora with GPT-4o query generation for the validation extension | `pmc500_docs.parquet`, `mtsamples500_docs.parquet`, `pmc500_queries.parquet`, `mtsamples500_queries.parquet` | ~30 min |
 
-These scripts will be added in a follow-up commit when the source notebooks are exported. Until then, the outputs in `results/` and `supplementary/` are the authoritative artifacts, and the manuscript Multimedia Appendices document what each contains.
+Plus the previously-deposited LME correction scripts:
+- `v1_final_refit.py` — Corrected additive-model LME re-fit (produces `_CORRECTED.parquet` outputs)
+- `v1_run_now.py` — Positional-vs-corpus-unique grouping diagnostic
 
-## Reconstruction roadmap
+## Requirements
 
-For someone wishing to reproduce a Stream B/C/E/G output before the pipeline scripts are added:
+- Google Colab Pro+ with NVIDIA H100 80GB (initial extraction) or NVIDIA RTX PRO 6000 Blackwell 102 GB (revision compute)
+- Python 3.11, PyTorch 2.3, transformers 4.44, statsmodels 0.14, scipy 1.12, numpy 1.26, rank-bm25 0.2, huggingface_hub 0.24
+- Hugging Face access token in `HF_TOKEN` environment variable (needed for gated models: BioMistral-7B, E5-Mistral-7B, some Phi-3 variants)
 
-1. The output parquets in `results/` and `supplementary/` are deposited and complete.
-2. The Methods sections (§3.4 through §3.6) describe each analysis with enough specificity to re-implement (formulae, parameter values, sample sizes, model spec).
-3. The Multimedia Appendices contain the tabulated source values.
-4. Open an issue if you need the source script for a specific output before the formal release.
+## Input data locations
+
+Each script expects inputs at `/content/sample_data/` unless otherwise noted:
+- `mtsamples_sample.csv` — 500+ rows, `text` column
+- `metadata_queries.json` — nested `{corpus: {keyword: [], natural_language: []}}` with 100 queries per corpus (per_v17 v17 canonical set)
+- `synthetic_notes.csv` — 100+ synthetic clinical notes
+
+PMC-Patients is loaded from HuggingFace `zhengyun21/PMC-Patients` at runtime with `seed=42` for the primary 100 and `seed=123` for the 500-doc validation extension.
+
+## Run order
+
+1. `stream_a_matched_comparisons.py` — adds the two matched-control models
+2. `stream_b_zca_methodology.py` — ZCA experiments across all 13 configurations
+3. `stream_c_per_query_ranks_lme.py` — per-query ranks for LME
+4. `v1_final_refit.py` — corrected LME re-fit on `per_query_ranks.parquet`
+5. `stream_eg_editorial_analyses.py` — editorial-response analyses
+6. `colab_validation_extension.py` (uses `prepare_500doc_corpora.py` first) — 5× scale validation
+7. `revision_figures.py` — final figure generation from cached parquets
+
+## LME correction
+
+The v1 refit (`v1_final_refit.py`) applies a corrected corpus-unique random-effects grouping (`corpus_query_idx`) rather than the positional grouping (`query_idx`) that produced a degenerate solution in an earlier fit. See `docs/analysis_decisions.md` §1 for the diagnostic story. All files ending `_CORRECTED.parquet` are authoritative; predecessor files without the suffix should not be used.
 
 ## Compute provenance
 
-- Google Colab Pro+ with NVIDIA H100 80GB (initial extraction) and NVIDIA RTX PRO 6000 Blackwell 102 GB (revision compute)
-- Python 3.11, PyTorch 2.3, transformers 4.44, statsmodels 0.14
-- All BFGS / L-BFGS LME fits used `maxiter=500`
-- Bootstrap CIs: 1000 resamples (parametric Wald CIs reported alongside)
+- Extraction: Google Colab Pro+, NVIDIA H100 80GB and RTX PRO 6000 Blackwell 102 GB
+- LME analysis: Python 3.11, statsmodels 0.14, `method='bfgs'`, `maxiter=500`
+- Bootstrap CIs: 50 cluster-bootstrap iterations for the primary analysis (see `bootstrap_rerun_additive.py`), 1000 resamples where indicated in individual scripts
+
+## License
+
+CC BY 4.0 (matches root repository LICENSE).
